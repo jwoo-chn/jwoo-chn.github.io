@@ -1,12 +1,13 @@
 let canvas = document.getElementById('c');
 const ctx = canvas.getContext('2d');
 const NUM_BIRDIES = 50;
-const IMAGE_DIRECTORY = '/assets/flappy-components/statics/';
+var counter = 1;
+const IMAGE_DIRECTORY = '/assets/game-components/';
 let { NEAT, activation, crossover, mutate } = require('neat_net-js');
 
 let config = {
 	model: [
-		{nodeCount: 5, type: "input"},
+		{nodeCount: 4, type: "input"},
 		{nodeCount: 2, type: "output", activationfunc: activation.SOFTMAX}
 	],
 	mutationRate: 0.1,
@@ -100,7 +101,7 @@ function createHandler() {
       gravity: 60, //gravity acceleration | m/s^2
       
       pipeDist: 24, //distance between pipes | m
-      pipeGapHeight: 8, //distance of the gap between bottom and top | m
+      pipeGapHeight: 10, //distance of the gap between bottom and top | m
       gapHeightRange: [6, 33], //range of heights that the gap can vary between | m
       pipeRadius: 2, //radius of the pipe (the width of the pipe is twice this) | m
       nextPipe: undefined, //the next pipe that the birds must pass through
@@ -270,6 +271,7 @@ function mainloop() {
   window.requestAnimationFrame(mainloop);
   if (gameHandler[gameHandler.gametype].isExtinct()) {
     gameHandler = createHandler();
+    counter++;
     brain.doGen();
     gameHandler[gameHandler.gametype].init(1, NUM_BIRDIES);
   }
