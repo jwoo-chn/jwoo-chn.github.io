@@ -35,6 +35,7 @@ class Bird {
   getInputs() {
     return [
       this.y,
+      this.xDistToPipe(),
       this.yDistToBottomPipe(),
       this.yDistToTopPipe(),
       this.yVel,
