@@ -1,7 +1,9 @@
-let canvas = document.getElementById('flappy-c');
+const canvas = document.getElementById('flappy-c');
 const ctx = canvas.getContext('2d');
+
 const NUM_BIRDIES = 50;
 const IMAGE_DIRECTORY = '/assets/flappy-components/statics/';
+
 let { NEAT, activation, crossover, mutate } = require('neat_net-js');
 
 let config = {
@@ -85,17 +87,14 @@ let time = {
 }
 
 function createHandler() {
-  return { //made a game handler in case we are doing multiple games
-    gametype: "flappyBird",
-
-    flappyBird: {
+  return {
       rng: new PRNG(1),
 
       birds: [], //list of birds
       x: 0, //x position of all the birds | m
       xVel: 10, //x velocity of all the birds | m/s
       birdHeight: 2, //assume the bird's hitbox is a square | m
-      yBoost: 30, //change in y-velocity upon flapping | m/s
+      jumpDist: 22, //change in y-velocity upon flapping | m/s
 
       gravity: 60, //gravity acceleration | m/s^2
       
@@ -121,19 +120,16 @@ function createHandler() {
         this.x += this.xVel * time.delta;
 
         let disp = -(time.now/200)%20.2;
-        for (let i = 0; i < 5; i++) {
+        for (let i = 0; i < 5; i++) 
           ctx.drawImage(assets.bg, disp + i * 20.2, 0, 20.25, screen.canvas.h);
-        }
 
         ctx.fillStyle = 'rgb(0,0,0)';
-        
         this.nextPipe = this.getPipe(this.x - 2);
         for (let i = 0; i < this.birds.length; i++) {
           let b = this.birds[i];
 
           if ((b.xDistToPipe() <= this.birdHeight / 2 + this.pipeRadius && (b.yDistToBottomPipe() <= this.birdHeight / 2 || b.yDistToTopPipe() <= this.birdHeight / 2))
             || b.y < 4) {
-            brain.setFitness(b.fitness, i);
             b.die();
           }
 
@@ -148,8 +144,7 @@ function createHandler() {
             b.yVel -= this.gravity * time.delta;
             b.y += b.yVel * time.delta;
 
-            brain.setInputs(b.getInputs(), i);   
-            // console.log(b.getInputs());
+            brain.setInputs(b.getInputs(), i);
             brain.feedForward();
 
             let pos = [this.camX + b.dist - this.x, screen.canvas.h - b.y];
@@ -166,8 +161,7 @@ function createHandler() {
             ctx.rotate(b.angle/4+.3);
             ctx.translate(-pos[0], -pos[1]);
 
-            let choices = brain.getDesicions();
-            // console.log(choices);
+            let choices = brain.getDesicions(i);
             if (choices[i] == 1) {
               b.flap();
             }
@@ -255,8 +249,7 @@ function createHandler() {
 
         return true;
       }
-    },
-  }
+    }
 }
 
 window.addEventListener('resize', resize);
@@ -264,14 +257,15 @@ window.onload = new function() {
   window.requestAnimationFrame(mainloop);
 }
 gameHandler = createHandler();
-gameHandler[gameHandler.gametype].init(1, NUM_BIRDIES);
+gameHandler.init(1, NUM_BIRDIES);
 
 function mainloop() {
   window.requestAnimationFrame(mainloop);
-  if (gameHandler[gameHandler.gametype].isExtinct()) {
+  if (gameHandler.isExtinct()) {
     gameHandler = createHandler();
+    UIconfig.enforce();
     brain.doGen();
-    gameHandler[gameHandler.gametype].init(1, NUM_BIRDIES);
+    gameHandler.init(1, NUM_BIRDIES);
   }
 
   time.now = performance.now();
@@ -282,12 +276,6 @@ function mainloop() {
   ctx.clearRect(0, 0, screen.canvas.w, screen.canvas.h);
   ctx.imageSmoothingEnabled = false;
 
-  gameHandler[gameHandler.gametype].simulate();
+  gameHandler.simulate();
 }
 
-
-// window.addEventListener("click", function() {
-//   for (let i = 0; i < gameHandler[gameHandler.gametype].getBirds().length; i++) {
-//     gameHandler[gameHandler.gametype].getBirds()[i].flap();
-//   }
-// });

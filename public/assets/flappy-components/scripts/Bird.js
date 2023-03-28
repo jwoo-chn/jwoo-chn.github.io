@@ -9,23 +9,22 @@ class Bird {
     this.opacity = 1;
     this.angle = 0;
     this.dist = 0;
-
   }
 
   yDistToBottomPipe() {
-    return this.y - gameHandler.flappyBird.nextPipe.bottom;
+    return this.y - gameHandler.nextPipe.bottom;
   }
 
   yDistToTopPipe() {
-    return gameHandler.flappyBird.nextPipe.top - this.y;
+    return gameHandler.nextPipe.top - this.y;
   }
 
   xDistToPipe() {
-    return gameHandler.flappyBird.nextPipe.x - gameHandler.flappyBird.x;
+    return gameHandler.nextPipe.x - gameHandler.x;
   }
 
   flap() {
-    this.yVel = 22;
+    this.yVel = gameHandler.jumpDist;
   }
 
   die() {
