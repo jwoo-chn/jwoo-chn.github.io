@@ -233,7 +233,7 @@ class Input {
     ]),
     new ConfigTab("Miscellaneous", [
       new Slider('xVel', 'X-Velocity', 'The speed at which the birds move.', [3,30], 10),
-      new Slider('jumpDist', 'Jump Power', 'The power put into a single bird flap.', [10,50], 30),
+      new Slider('jumpVel', 'Jump Power', 'The power put into a single bird flap.', [10,50], 22),
       new Slider('camX', 'Camera X', 'The horizontal position of the birds on the screen.', [2,50], 10),
     ]),
   ]);

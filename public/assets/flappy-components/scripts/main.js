@@ -94,7 +94,7 @@ function createHandler() {
       x: 0, //x position of all the birds | m
       xVel: 10, //x velocity of all the birds | m/s
       birdHeight: 2, //assume the bird's hitbox is a square | m
-      jumpDist: 22, //change in y-velocity upon flapping | m/s
+      jumpVel: 22, //change in y-velocity upon flapping | m/s
 
       gravity: 60, //gravity acceleration | m/s^2
       

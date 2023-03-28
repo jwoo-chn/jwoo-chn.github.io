@@ -24,7 +24,7 @@ class Bird {
   }
 
   flap() {
-    this.yVel = gameHandler.jumpDist;
+    this.yVel = gameHandler.jumpVel;
   }
 
   die() {
