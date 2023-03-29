@@ -146,7 +146,18 @@ class Button extends Input {
     bt.innerHTML = this.title;
 
     bt.onclick = () => {
-      location.reload();
+      UIconfig = createUIConfig();
+      UIconfig.init();
+      
+      config = createDefaultConfig();
+      brain = new NEAT(config);
+
+      gameHandler = createHandler();
+      gameHandler.init();
+      UIconfig.enforce();
+
+      window.cancelAnimationFrame();
+      window.requestAnimationFrame(mainloop);
     }
 
     rightSide.appendChild(this.descElement);
@@ -255,41 +266,58 @@ class Config {
   }
 }
 
+function createUIConfig() {
+  return new Config([
+    new ConfigTab("Genetic", [
+      new Slider('mutationRate', 'Mutation Rate', "The percent probability that a gene is randomly changed<br>Note: Changing this restarts the simulation", [1, 20], 10),
+      new Slider('numBirds', 'Population Size', "The number of birds per generation<br>Note: Changing this restarts the simulation", [5, 80], 30),
+      new Button(function() { console.log('click')}, 'Restart Simulation', 'Clear all training data and restart the simulation.'),
+    ]),
+    new ConfigTab("Environment", [
+      new Slider('gravity', 'Gravity', 'The acceleration of gravity.', [50,100], 60),
+      new Slider('pipeGapHeight', 'Pipe Gap Height', 'The distance between the top and bottom pipes.', [5,20], 10),
+      new Slider('xVel', 'X-Velocity', 'The speed at which the birds move.', [3, 30], 10),
+      new Slider('jumpVel', 'Jump Power', 'The power put into a single bird flap.', [10, 50], 22),
+    ]),
+    new ConfigTab("Miscellaneous", [
+      new Slider('camX', 'Camera X', 'The horizontal position of the birds on the screen.', [2,50], 10),
+      // new Slider('speed', 'Speed', 'The speed of the game.', [20, 100], 60),
+    ]),
+  ]);
+}
+
 let configWindow = document.getElementById("configWindow");
 
 let inputObjs = [];
-let UIconfig = new Config([
-  new ConfigTab("Genetic", [
-    new Slider('mutationRate', 'Mutation Rate', "The percent probability that a gene is randomly changed<br>Note: Resets Back to Generation 1", [1, 20], 10),
-    new Slider('numBirds', 'Population Size', "The number of birds per generation<br>Note: Resets Back to Generation 1", [5, 80], 30),
-    new Button(function() { console.log('click')}, 'Restart Simulation', 'Clear all training data and restart the simulation.'),
-  ]),
-  new ConfigTab("Environment", [
-    new Slider('gravity', 'Gravity', 'The acceleration of gravity.', [50,100], 60),
-    new Slider('pipeGapHeight', 'Pipe Gap Height', 'The distance between the top and bottom pipes.', [5,20], 10),
-    new Slider('xVel', 'X-Velocity', 'The speed at which the birds move.', [3, 30], 10),
-    new Slider('jumpVel', 'Jump Power', 'The power put into a single bird flap.', [10, 50], 22),
-  ]),
-  new ConfigTab("Miscellaneous", [
-    new Slider('camX', 'Camera X', 'The horizontal position of the birds on the screen.', [2,50], 10),
-    // new Slider('speed', 'Speed', 'The speed of the game.', [20, 100], 60),
-  ]),
-]);
+let UIconfig = createUIConfig();
 
 UIconfig.init();
 
 let mask = document.getElementById('mask');
 let menu = document.getElementById('mainMenu');
-
+let editWindow = document.getElementById("configWindow");
+let pauseBtn = document.getElementById("pauseBtn");
 
 function enterSim() {
   pause = false;
   mask.style.opacity = 0;
   menu.style.visibility = 'hidden';
+
+  configWindow.style.visibility = "visible";
+  configWindow.style.opacity = 100;
+
+  pauseBtn.style.visibility = "visible";
+  pauseBtn.style.opacity = 100;
 }
 
 function pauseSim() {
   pause = true;
   mask.style.opacity = 1;
   menu.style.visibility = 'visible';
+
+  configWindow.style.visibility = "hidden";
+  configWindow.style.opacity = 0;
+
+  pauseBtn.style.visibility = "hidden";
+  pauseBtn.style.opacity = 0;
 }

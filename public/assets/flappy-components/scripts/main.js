@@ -4,18 +4,23 @@ const ctx = canvas.getContext('2d');
 const IMAGE_DIRECTORY = '/assets/flappy-components/statics/';
 
 let { NEAT, activation, crossover, mutate } = require('neat_net-js');
-let config = {
-  model: [
-    { nodeCount: 5, type: "input" },
-    { nodeCount: 2, type: "output", activationfunc: activation.SOFTMAX }
-  ],
-  mutationRate: 0.1,
-  crossoverMethod: crossover.RANDOM,
-  mutationMethod: mutate.RANDOM,
-  populationSize: 30,
-};
+
+function createDefaultConfig() {
+  return {
+    model: [
+      { nodeCount: 5, type: "input" },
+      { nodeCount: 2, type: "output", activationfunc: activation.SOFTMAX }
+    ],
+    mutationRate: 0.1,
+    crossoverMethod: crossover.RANDOM,
+    mutationMethod: mutate.RANDOM,
+    populationSize: 30,
+  };
+}
+
+let config = createDefaultConfig();
 let brain = new NEAT(config);
-let pause = false;
+let pause = true;
 
 let assets = {
   birdSprites : [createImage('yellowbird-downflap.png'), createImage('yellowbird-midflap.png'), createImage('yellowbird-upflap.png')],
@@ -252,7 +257,6 @@ function createHandler() {
     }
 }
 
-let load = 0;
 window.addEventListener('resize', resize);
 window.onload = new function() {
   gameHandler = createHandler();
@@ -262,13 +266,9 @@ window.onload = new function() {
 
 function mainloop() {
   window.requestAnimationFrame(mainloop);
-  if (load >= 4)  {
-    pause = true;
-    load = -1;
-  } else if (load < 4 && load >= 0)
-    load++;
 
   if (pause) return;
+
 
   if (gameHandler.isExtinct()) {
     gameHandler = createHandler();

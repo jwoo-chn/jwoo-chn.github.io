@@ -144,6 +144,12 @@ html {
   z-index: 2;
 }
 
+#pauseBtn, .configWindow {
+  visibility: hidden;
+  opacity: 0%;
+  transition:visibility 0.15s linear,opacity 0.15s linear;
+}
+
 #root {
     display: none;
 }
