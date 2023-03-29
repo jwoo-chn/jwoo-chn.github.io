@@ -1,19 +1,12 @@
 /*Variables*/
 :root {
-  --font1: 'Mona Sans';
+  --font1: 'Figtree', sans-serif;
   --fontColor: white;
-  --bgColor: rgb(27, 27, 27);
+  --bgColor: rgb(27, 27, 27, 0.75);
   --UIBgColor: rgb(30,30,30);
   --clear: rgba(0,0,0,0);
   --intermediateColor: rgb(120,120,120);
   --lightColor: rgb(140,140,140);
-}
-
-@font-face{
-  font-family: 'Mona Sans';
-  src: font-url('resources/Mona-Sans.woff2') format('woff2');
-  font-weight: 600 900;
-  font-stretch: 75% 125%;
 }
 
 html {
@@ -127,7 +120,7 @@ html {
   display: inline-block;
   white-space: nowrap;
   width: 100%;
-  overflow-x: auto;
+  overflow-x: none;
   border-bottom: 2px solid var(--intermediateColor);
 }
 
@@ -135,7 +128,7 @@ html {
   width: 100%;
   bottom: 0px;
   flex: 1;
-  overflow-y: auto;
+  overflow-y: scroll;
 }
 
 .configWindow {
@@ -158,4 +151,123 @@ html {
 canvas {
   position: absolute;
   z-index: 1;
+}
+
+.mainMenu {
+  position: fixed;
+  width: 50%;
+  height: 54%;
+  right: 25%;
+  bottom: 23%;
+  background-color: var(--UIBgColor);
+  border: 2px solid var(--fontColor);
+
+  display: flex;
+  flex-flow: column;
+  z-index: 4;
+}
+
+.menuTitle {
+  font-size: 3.4rem;
+  font-weight: bold;
+  text-align: center;
+  width: 100%;
+  padding: 1.4rem 1.2rem;
+  border-bottom: 2px solid var(--intermediateColor);
+}
+
+.menuTitleDesc {
+  font-weight: normal;
+  font-size: 1.1rem;
+  text-align: center;
+  width: 100%;
+  margin-top: .4rem;
+  opacity: .9;
+}
+
+.menuBody {
+  display: flex;
+  flex-flow: row;
+  flex: 1 1 auto;
+  overflow-y: scroll;
+}
+
+.menuAbout {
+  width: 57%;
+  border-right: 2px solid var(--intermediateColor);
+  padding: 1.2rem 1.4rem;
+}
+
+.menuOptions {
+  width: 43%;
+  padding: 1.2rem 1.4rem;
+}
+
+.menuHeader {
+  font-size: 1.9rem;
+  font-weight: bold;
+}
+
+.menuText {
+  width: 100%;
+  margin-top: .4rem;
+  font-size: 1.1rem;
+  opacity: .9;
+  word-wrap: break-word;
+}
+
+.menuDivider {
+  width: 100%;
+  border-bottom: 2px solid var(--intermediateColor);
+  margin: .9rem 0rem;
+}
+
+.mask {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--bgColor);
+  z-index: 3;
+  transition: opacity .4s;
+  pointer-events: none;
+}
+
+.topRight {
+  font-size: 1.2rem;
+  font-family: var(--font1);
+  outline: 0;
+  padding: .4rem .5rem;
+  border: 2px solid var(--fontColor);
+  background-color: var(--UIBgColor);
+  color: var(--fontColor);
+  transition: background-color .1s, color .1s;
+  position: fixed;
+  top: 3%;
+  right: 3%;
+  z-index: 2;
+}
+
+.topRight:hover {
+  background-color: var(--fontColor);
+  color: var(--UIBgColor);
+}
+
+* {
+  box-sizing: border-box;
+  font-family: var(--font1) !important;
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: darkgrey;
+  outline: 1px solid slategrey;
 }

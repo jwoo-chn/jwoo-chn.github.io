@@ -1,23 +1,21 @@
 const canvas = document.getElementById('flappy-c');
 const ctx = canvas.getContext('2d');
 
-const NUM_BIRDIES = 50;
 const IMAGE_DIRECTORY = '/assets/flappy-components/statics/';
 
 let { NEAT, activation, crossover, mutate } = require('neat_net-js');
-
 let config = {
-	model: [
-		{nodeCount: 5, type: "input"},
-		{nodeCount: 2, type: "output", activationfunc: activation.SOFTMAX}
-	],
-	mutationRate: 0.1,
-	crossoverMethod: crossover.RANDOM,
-	mutationMethod: mutate.RANDOM,
-	populationSize: NUM_BIRDIES
+  model: [
+    { nodeCount: 5, type: "input" },
+    { nodeCount: 2, type: "output", activationfunc: activation.SOFTMAX }
+  ],
+  mutationRate: 0.1,
+  crossoverMethod: crossover.RANDOM,
+  mutationMethod: mutate.RANDOM,
+  populationSize: 30,
 };
-
 let brain = new NEAT(config);
+let pause = false;
 
 let assets = {
   birdSprites : [createImage('yellowbird-downflap.png'), createImage('yellowbird-midflap.png'), createImage('yellowbird-upflap.png')],
@@ -73,9 +71,9 @@ let screen = {
   offsetX: 0,
   offsetY: 0,
 }
+
 function resize() {
   screen.resize();
-  //whoops, i forgot about how callbacks work so i had to make this function wrapper
 }
 
 resize();
@@ -106,9 +104,12 @@ function createHandler() {
 
       camX: 10, //x position of where to put the birds on the screen
 
-      init: function(seed, birdCount) { //the seed determines what the pipes will look like
-        this.birds = new Array(birdCount);
-        for (let i = 0; i < birdCount; i++) {
+      numBirds: 30,
+      mutationRate: 0.1,
+
+      init: function() { //the seed determines what the pipes will look like
+        this.birds = new Array(this.numBirds);
+        for (let i = 0; i < this.numBirds; i++) {
           this.birds[i] = new Bird();
         } 
 
@@ -134,12 +135,12 @@ function createHandler() {
           }
 
           // temp render
-          if (!this.birds[i].dead) {
+          if (!b.dead) {
             b.dist = this.x;
 
             b.fitness += 0.01;
+            // console.log(b.fitness);
             brain.setFitness(b.fitness, i);
-
 
             b.yVel -= this.gravity * time.delta;
             b.y += b.yVel * time.delta;
@@ -149,7 +150,6 @@ function createHandler() {
 
             let pos = [this.camX + b.dist - this.x, screen.canvas.h - b.y];
             b.angle = Math.atan2(b.yVel, this.xVel);
-            if (i == 0) console.log(this.xVel);
             
             ctx.translate(pos[0], pos[1]);
             ctx.rotate(-b.angle/4-.3);
@@ -252,20 +252,29 @@ function createHandler() {
     }
 }
 
+let load = 0;
 window.addEventListener('resize', resize);
 window.onload = new function() {
+  gameHandler = createHandler();
+  gameHandler.init();
   window.requestAnimationFrame(mainloop);
 }
-gameHandler = createHandler();
-gameHandler.init(1, NUM_BIRDIES);
 
 function mainloop() {
   window.requestAnimationFrame(mainloop);
+  if (load >= 4)  {
+    pause = true;
+    load = -1;
+  } else if (load < 4 && load >= 0)
+    load++;
+
+  if (pause) return;
+
   if (gameHandler.isExtinct()) {
     gameHandler = createHandler();
-    UIconfig.enforce();
     brain.doGen();
-    gameHandler.init(1, NUM_BIRDIES);
+    gameHandler.init();
+    UIconfig.enforce();
   }
 
   time.now = performance.now();
