@@ -25,22 +25,27 @@ class Bird {
     this.dist = 0;
   }
 
+  // finds the y distance to the bottom of the closest pipe
   yDistToBottomPipe() {
     return this.y - gameHandler.nextPipe.bottom;
   }
 
+  // finds the y distance to the top of the closest pipe
   yDistToTopPipe() {
     return gameHandler.nextPipe.top - this.y;
   }
 
+  // finds the x distance to the closest pipe
   xDistToPipe() {
     return gameHandler.nextPipe.x - gameHandler.x;
   }
 
+  // sets the bird's velocity to the jump velocity
   flap() {
     this.yVel = gameHandler.jumpVel;
   }
 
+  // sets the bird's status to dead
   die() {
     this.dead = true;
   }
