@@ -5,9 +5,11 @@ class PRNG {
     this.seed = seed;
   }
 
-  //generate a random number and return it
+  //generate a random number with the Mulberry32 function and return it
   num(x) {
-    let a = (this.seed + x) * 15485863;
-    return (a * a * a % 2038074743) / 2038074743;
+    var t = (this.seed + x) + 0x6D2B79F5;
+    t = Math.imul(t ^ t >>> 15, t | 1);
+    t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
   }
 }
