@@ -88,7 +88,7 @@ function createDefaultConfig() {
     mutationRate: 0.1, //default mutation rate when moving to nextGeneration of simulator
     crossoverMethod: crossover.RANDOM,
     mutationMethod: mutate.RANDOM, // sets the mutation/crossover methods to randomized
-    populationSize: 20, // num of birds
+    populationSize: 30, // num of birds
   };
 }
 
@@ -97,7 +97,7 @@ function createDefaultConfig() {
 function createDefaultUIConfig() {
   return new Config([
     new ConfigTab("Genetic", [
-      new Slider('numBirds', 'Population Size', "The number of birds per generation.<br><span class='highlight'>Note: Changing this restarts the simulation</span>", [5, 80], 20),
+      new Slider('numBirds', 'Population Size', "The number of birds per generation.<br><span class='highlight'>Note: Changing this restarts the simulation</span>", [5, 80], 30),
       new Slider('mutationRate', 'Mutation Rate', "The percent probability that a gene is randomly changed.<br><span class='highlight'>Note: Changing this restarts the simulation</span>", [1, 20], 10),
       new Button(restartSim, 'Restart Simulation', 'Clear all training data and restart the simulation.'),
     ]),
@@ -144,7 +144,7 @@ function createHandler() {
 
       camX: 10, //x position of where to put the birds on the screen
       speed: 50, //game movement speed
-      numBirds: 20, //number of birds
+      numBirds: 30, //number of birds
       mutationRate: 0.1, //probability of a gene being randomly changed
 
       init: function() {
