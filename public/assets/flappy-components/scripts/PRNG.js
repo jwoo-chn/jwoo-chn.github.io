@@ -4,6 +4,8 @@ class PRNG {
     //Will return in range 0 to 1 if seed >= 0 and -1 to 0 if seed < 0.
     this.seed = seed;
   }
+
+  //generate a random number and return it
   num(x) {
     let a = (this.seed + x) * 15485863;
     return (a * a * a % 2038074743) / 2038074743;

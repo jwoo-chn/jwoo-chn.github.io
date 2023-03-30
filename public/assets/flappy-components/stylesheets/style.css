@@ -1,23 +1,31 @@
-/*Variables*/
+/* Variables for colors/font used in the project */
 :root {
   --font1: 'Figtree', sans-serif;
-  --fontColor: white;
-  --bgColor: rgb(27, 27, 27, 0.75);
+  --fontColor: rgb(235,235,235);
+  --bgColor: rgba(27, 27, 27, 0.75);
   --UIBgColor: rgb(30,30,30);
   --clear: rgba(0,0,0,0);
   --intermediateColor: rgb(120,120,120);
   --lightColor: rgb(140,140,140);
 }
 
+/* Set font for the entire page */
 html {
     font-family: var(--font1);
     color: var(--fontColor);
     background-color: var(--bgColor);
 }
 
+/* remove scrollbar from horizontal */
+body {
+  overflow-x: hidden;
+}
+
+/* Whenever an element is focused, prevent an outline from occuring */
 *:focus {
   outline: 0 !important;
 }
+
 
 .configSlider {
   -webkit-appearance: none;
@@ -48,6 +56,7 @@ html {
   cursor: pointer;
 }
 
+/* Wraps around a single input element, which consists of a button/slider and description. */
 .configInputWrapper {
   display: flex;
   padding: .8rem 1.2rem;
@@ -81,10 +90,13 @@ html {
   margin-top: .2rem;
 }
 
+/* Adds a border to the right side of an element */
 .rightSideBorder {
   border-right: 2px solid var(--intermediateColor);
+  padding: 0 .7rem 0 0;
 }
 
+/* Represents a tab button */
 .configTab {
   font-size: 1.3rem;
   font-family: var(--font1);
@@ -111,6 +123,7 @@ html {
   color: var(--UIBgColor);
 }
 
+/* Represents the body (content) of a given selected tab */
 .configTabBody {
   width: 100%;
   height: 100%;
@@ -147,11 +160,11 @@ html {
 #pauseBtn, .configWindow {
   visibility: hidden;
   opacity: 0%;
-  transition:visibility 0.15s linear,opacity 0.15s linear;
+  transition: opacity 0.15s linear;
 }
 
 #root {
-    display: none;
+  display: none;
 }
 
 canvas {
@@ -192,21 +205,24 @@ canvas {
 }
 
 .menuBody {
-  display: flex;
-  flex-flow: row;
   flex: 1 1 auto;
   overflow-y: scroll;
+  float: left;
 }
 
 .menuAbout {
   width: 57%;
   border-right: 2px solid var(--intermediateColor);
   padding: 1.2rem 1.4rem;
+  min-height: 100%;
+  float: left;
 }
 
 .menuOptions {
   width: 43%;
   padding: 1.2rem 1.4rem;
+  min-height: 100%;
+  float: right;
 }
 
 .menuHeader {
@@ -228,6 +244,7 @@ canvas {
   margin: .9rem 0rem;
 }
 
+/* Masks the content of the majority of the page except for the main menu. */
 .mask {
   position: fixed;
   top: 0;
@@ -276,4 +293,8 @@ canvas {
 ::-webkit-scrollbar-thumb {
   background-color: darkgrey;
   outline: 1px solid slategrey;
+}
+
+.highlight {
+  color: #eed202;
 }

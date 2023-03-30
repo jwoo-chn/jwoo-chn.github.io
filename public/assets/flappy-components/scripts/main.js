@@ -1,45 +1,15 @@
 const canvas = document.getElementById('flappy-c');
 const ctx = canvas.getContext('2d');
-
 const IMAGE_DIRECTORY = '/assets/flappy-components/statics/';
-
-let { NEAT, activation, crossover, mutate } = require('neat_net-js');
-
-function createDefaultConfig() {
-  return {
-    model: [
-      { nodeCount: 5, type: "input" },
-      { nodeCount: 2, type: "output", activationfunc: activation.SOFTMAX }
-    ],
-    mutationRate: 0.1,
-    crossoverMethod: crossover.RANDOM,
-    mutationMethod: mutate.RANDOM,
-    populationSize: 30,
-  };
+const { NEAT, activation, crossover, mutate } = require('neat_net-js');
+const time = {
+  inGameNow: 0,
+  now: performance.now(), //ms
+  then: performance.now(), //ms
+  delta: 0 //s
 }
 
-let config = createDefaultConfig();
-let brain = new NEAT(config);
-let pause = true;
-
-let assets = {
-  birdSprites : [createImage('yellowbird-downflap.png'), createImage('yellowbird-midflap.png'), createImage('yellowbird-upflap.png')],
-  nums : [createImage('0.png'), createImage('1.png'), createImage('2.png'), createImage('3.png'), createImage('4.png'), createImage('5.png'), createImage('6.png'), createImage('7.png'), createImage('8.png'), createImage('9.png')],
-  bg : createImage('background-day.png'),
-  base : createImage('base.png'),
-  pipeUp : createImage('pipe-green.png'),
-  pipeDown : createImage('pipe-green-down.png')
-}
-
-function createImage(src) {
-  let ret = new Image();
-  ret.src = IMAGE_DIRECTORY + src;
-  ret.style.visibility = 'hidden';
-  document.body.append(ret);
-  return ret;
-}
-
-let screen = {
+const screen = {
   aspectRatio: 16 / 9,
   canvas: { //width and height that will be used in canvas rendering (the canvas is 64m wide)
     w: 64,
@@ -75,23 +45,62 @@ let screen = {
   },
   offsetX: 0,
   offsetY: 0,
-}
+};
+
+var assets;
+var config = createDefaultConfig();
+var brain = new NEAT(config);
+var pause = true;
+
 
 function resize() {
   screen.resize();
 }
 
-resize();
+function createDefaultConfig() {
+  return {
+    model: [
+      { nodeCount: 5, type: "input" },
+      { nodeCount: 2, type: "output", activationfunc: activation.SOFTMAX }
+    ],
+    mutationRate: 0.1,
+    crossoverMethod: crossover.RANDOM,
+    mutationMethod: mutate.RANDOM,
+    populationSize: 30,
+  };
+}
 
-let time = {
-  now: performance.now(), //ms
-  then: performance.now(), //ms
-  delta: 0 //s
+function createDefaultUIConfig() {
+  return new Config([
+    new ConfigTab("Genetic", [
+      new Slider('numBirds', 'Population Size', "The number of birds per generation.<br><span class='highlight'>Note: Changing this restarts the simulation</span>", [5, 80], 30),
+      new Slider('mutationRate', 'Mutation Rate', "The percent probability that a gene is randomly changed.<br><span class='highlight'>Note: Changing this restarts the simulation</span>", [1, 20], 10),
+      new Button(restartSim, 'Restart Simulation', 'Clear all training data and restart the simulation.'),
+    ]),
+    new ConfigTab("Environment", [
+      new Slider('gravity', 'Gravity', 'The acceleration of gravity.', [50,100], 60),
+      new Slider('pipeGapHeight', 'Pipe Gap Height', 'The distance between the top and bottom pipes.', [5,20], 10),
+      new Slider('xVel', 'X-Velocity', 'The speed at which the birds move.', [3, 30], 10),
+      new Slider('jumpVel', 'Jump Power', 'The power put into a single bird flap.', [10, 50], 22),
+    ]),
+    new ConfigTab("Miscellaneous", [
+      new Slider('camX', 'Camera X', 'The horizontal position of the birds on the screen.', [2,50], 10),
+      new Slider('speed', 'Speed', 'The speed at which the simulation runs.', [5, 300], 50),
+    ]),
+  ]);
+}
+
+function createImage(src) {
+  let ret = new Image();
+  ret.src = IMAGE_DIRECTORY + src;
+  ret.style.visibility = 'hidden';
+  document.body.append(ret);
+  return ret;
 }
 
 function createHandler() {
   return {
-      rng: new PRNG(1),
+      rng: new PRNG(0),
 
       birds: [], //list of birds
       x: 0, //x position of all the birds | m
@@ -108,7 +117,7 @@ function createHandler() {
       nextPipe: undefined, //the next pipe that the birds must pass through
 
       camX: 10, //x position of where to put the birds on the screen
-
+      speed: 50,
       numBirds: 30,
       mutationRate: 0.1,
 
@@ -118,23 +127,23 @@ function createHandler() {
           this.birds[i] = new Bird();
         } 
 
-        this.rng = new PRNG(1);
+        this.rng = new PRNG(Math.random()*1e9);
         this.x = 0;
       },
 
       simulate: function() {
         this.x += this.xVel * time.delta;
 
-        let disp = -(time.now/200)%20.2;
+        let disp = -(this.x/2)%20.2;
         for (let i = 0; i < 5; i++) 
           ctx.drawImage(assets.bg, disp + i * 20.2, 0, 20.25, screen.canvas.h);
 
         ctx.fillStyle = 'rgb(0,0,0)';
         this.nextPipe = this.getPipe(this.x - 2);
-        for (let i = 0; i < this.birds.length; i++) {
+        for (let i = 0; i < this.numBirds; i++) {
           let b = this.birds[i];
 
-          if ((b.xDistToPipe() <= this.birdHeight / 2 + this.pipeRadius && (b.yDistToBottomPipe() <= this.birdHeight / 2 || b.yDistToTopPipe() <= this.birdHeight / 2))
+          if ((b.xDistToPipe() <= this.birdHeight / 2 + this.pipeRadius * 1.02 && (b.yDistToBottomPipe() <= this.birdHeight / 2 || b.yDistToTopPipe() <= this.birdHeight / 2))
             || b.y < 4) {
             b.die();
           }
@@ -161,7 +170,7 @@ function createHandler() {
 
             ctx.fillStyle = "rgb(237, 255, 0)";
 
-            ctx.drawImage(assets.birdSprites[(Math.floor(time.now/100))%3], -this.birdHeight/2 * 34/24, -this.birdHeight/2, this.birdHeight * 34/24, this.birdHeight);
+            ctx.drawImage(assets.birdSprites[(Math.floor(time.inGameNow/100))%3], -this.birdHeight/2 * 34/24, -this.birdHeight/2, this.birdHeight * 34/24, this.birdHeight);
 
             ctx.rotate(b.angle/4+.3);
             ctx.translate(-pos[0], -pos[1]);
@@ -183,7 +192,7 @@ function createHandler() {
 
             ctx.fillStyle = "rgb(237, 255, 0)";
 
-            ctx.drawImage(assets.birdSprites[(Math.floor(time.now/100))%3], -this.birdHeight/2 * 34/24, -this.birdHeight/2, this.birdHeight * 34/24, this.birdHeight);
+            ctx.drawImage(assets.birdSprites[(Math.floor(time.inGameNow/100))%3], -this.birdHeight/2 * 34/24, -this.birdHeight/2, this.birdHeight * 34/24, this.birdHeight);
 
             ctx.rotate(b.angle/4+.3);
             ctx.translate(-pos[0], -pos[1]);
@@ -226,6 +235,16 @@ function createHandler() {
           ctx.drawImage(assets.nums[score%10], disp + i, 2.5, 1.2, 36/24*1.3);
           score = Math.floor(score/10);
         }
+
+        ctx.font = "1.7px 'Figtree', sans-serif";
+        
+        ctx.lineWidth = .34;
+        
+        let dispGen = "Generation: " + (brain.generation + 1);
+        ctx.strokeStyle = 'rgb(0,0,0)';
+        ctx.strokeText(dispGen, .76, 35.05);
+        ctx.fillStyle = 'rgb(255,255,255)';
+        ctx.fillText(dispGen, .7, 35);
       },
 
       //get the pipe that occurs immediately after position x
@@ -246,10 +265,10 @@ function createHandler() {
       },
 
       isExtinct: function() {
-        for (let i = 0; i < this.birds.length; i++) {
-          if (!this.birds[i].dead) {
+        for (let i = 0; i < this.numBirds; i++) {
+          if (!this.birds[i].dead) 
             return false;
-          }
+          
         }
 
         return true;
@@ -257,34 +276,54 @@ function createHandler() {
     }
 }
 
-window.addEventListener('resize', resize);
-window.onload = new function() {
-  gameHandler = createHandler();
-  gameHandler.init();
-  window.requestAnimationFrame(mainloop);
-}
-
 function mainloop() {
   window.requestAnimationFrame(mainloop);
 
-  if (pause) return;
-
+  if (time.inGameNow == 0 && pause) return;
 
   if (gameHandler.isExtinct()) {
-    gameHandler = createHandler();
     brain.doGen();
-    gameHandler.init();
+    gameHandler = createHandler();
     UIconfig.enforce();
+    // console.log(brain.bestCreature.export());
+    gameHandler.init();
   }
 
   time.now = performance.now();
   time.delta = (time.now - time.then) / 1000;
   time.then = time.now;
-  time.delta = 1 / 60; //for now, assume 60 fps
+  time.delta = 1 / 60 * gameHandler.speed/50; //for now, assume 60 fps
+
+  time.delta *= 1-pause;
+
+  time.inGameNow += time.delta * 1000;
 
   ctx.clearRect(0, 0, screen.canvas.w, screen.canvas.h);
   ctx.imageSmoothingEnabled = false;
 
   gameHandler.simulate();
 }
+
+window.addEventListener('resize', resize);
+window.onload = new function() {
+  resize();
+
+  assets = {
+    birdSprites : [createImage('yellowbird-downflap.png'), createImage('yellowbird-midflap.png'), createImage('yellowbird-upflap.png')],
+    nums : [createImage('0.png'), createImage('1.png'), createImage('2.png'), createImage('3.png'), createImage('4.png'), createImage('5.png'), createImage('6.png'), createImage('7.png'), createImage('8.png'), createImage('9.png')],
+    bg : createImage('background-day.png'),
+    base : createImage('base.png'),
+    pipeUp : createImage('pipe-green.png'),
+    pipeDown : createImage('pipe-green-down.png')
+  };
+
+  gameHandler = createHandler();
+  UIconfig = createDefaultUIConfig();
+  UIconfig.init();
+  gameHandler.init();
+
+  window.requestAnimationFrame(mainloop);
+}
+
+
 

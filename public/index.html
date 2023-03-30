@@ -20,11 +20,14 @@
   </head>
   <body>
     <div id="root"></div>
+
+
     <div id="configWindow" class="configWindow"></div> 
     <div class="mask" id="mask"></div>
     <div class="mainMenu" id="mainMenu">
       <div class="menuTitle">
         SimAI
+        <image src="%PUBLIC_URL%/assets/flappy-components/statics/yellowbird-upflap.png" height="40rem"></image>
         <div class="menuTitleDesc">
           An interactive AI simulation in the style of a friendly video game.
         </div>
@@ -60,15 +63,19 @@
         </div>
       </div>
     </div>
-    <button id="pauseBtn" class="configButton topRight" onclick="pauseSim()">Pause Simulation</button>
+    <button id="pauseBtn" class="topRight" onclick="pauseSim()">Pause Simulation</button>
     <div id="flappy-div">
       <canvas id="flappy-c"></canvas>
+
+      <!-- allows the Node.JS require() commands to work on browser's end -->
       <script src="%PUBLIC_URL%/assets/flappy-components/scripts/bundle.js"></script>
+
+      <!-- class to generate pseudo-random numbers; -->
       <script src="%PUBLIC_URL%/assets/flappy-components/scripts/PRNG.js"></script>
       <script src="%PUBLIC_URL%/assets/flappy-components/scripts/Bird.js"></script>
       <script src="%PUBLIC_URL%/assets/flappy-components/scripts/Pipe.js"></script>
-      <script src="%PUBLIC_URL%/assets/flappy-components/scripts/main.js"></script>
       <script src="%PUBLIC_URL%/assets/flappy-components/scripts/UI.js"></script>
+      <script src="%PUBLIC_URL%/assets/flappy-components/scripts/main.js"></script>
     </div>
   </body>
 </html>
