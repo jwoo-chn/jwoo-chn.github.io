@@ -5,15 +5,13 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@500;700&display=swap" rel="stylesheet">
-    <link rel="icon" href="%PUBLIC_URL%/assets/favicon.ico" />
     <link rel="stylesheet" type="text/css" href="%PUBLIC_URL%/assets/flappy-components/stylesheets/style.css"/>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
     <meta
       name="description"
-      content="Web site created using create-react-app"
+      content="Machine Learning Simulation to teach Neural Network Algorithm"
     />
-    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
     
     <title>SimAI</title>
@@ -21,9 +19,13 @@
   <body>
     <div id="root"></div>
 
-
+    <!-- window for the user configurations -->
     <div id="configWindow" class="configWindow"></div> 
+
+    <!-- adds the darkened background -->
     <div class="mask" id="mask"></div>
+
+    <!-- main menu with start simulation and welcome page -->
     <div class="mainMenu" id="mainMenu">
       <div class="menuTitle">
         SimAI
@@ -65,6 +67,8 @@
         </div>
       </div>
     </div>
+
+    <!-- button to pause the simulation -->
     <button id="pauseBtn" class="topRight" onclick="pauseSim()">Pause Simulation</button>
     <div id="flappy-div">
       <canvas id="flappy-c"></canvas>
@@ -74,9 +78,17 @@
 
       <!-- class to generate pseudo-random numbers; -->
       <script src="%PUBLIC_URL%/assets/flappy-components/scripts/PRNG.js"></script>
+
+      <!-- Bird Object -->
       <script src="%PUBLIC_URL%/assets/flappy-components/scripts/Bird.js"></script>
+
+      <!-- Pipe Object -->
       <script src="%PUBLIC_URL%/assets/flappy-components/scripts/Pipe.js"></script>
+
+      <!-- Configuration UI -->
       <script src="%PUBLIC_URL%/assets/flappy-components/scripts/UI.js"></script>
+
+      <!-- main script for simulation -->
       <script src="%PUBLIC_URL%/assets/flappy-components/scripts/main.js"></script>
     </div>
   </body>

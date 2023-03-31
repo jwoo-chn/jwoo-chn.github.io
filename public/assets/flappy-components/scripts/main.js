@@ -59,7 +59,6 @@ const screen = {
 };
 
 // initializing more variables
-
 // assets = nothing for now; initialized in window.load() so simulation will start after all images are loaded in
 var assets;
 
