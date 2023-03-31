@@ -298,3 +298,7 @@ canvas {
 .highlight {
   color: #eed202;
 }
+
+li:not(:last-child) {
+  margin-bottom: .3rem;
+}

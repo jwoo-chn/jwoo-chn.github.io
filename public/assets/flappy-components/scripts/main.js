@@ -8,7 +8,7 @@ const IMAGE_DIRECTORY = '/assets/flappy-components/statics/';
 // imports the NEAT library
 const { NEAT, activation, crossover, mutate } = require('neat_net-js');
 
-// sets the ingame time
+// sets the in-game time
 const time = {
   inGameNow: 0,
   now: performance.now(), //ms
@@ -39,7 +39,7 @@ const screen = {
       h = w / this.aspectRatio;
     }
     
-    // aligns the canvas
+    // aligns/resizes the canvas
     canvas.width = w;
     canvas.height = h;
     canvas.style.width = w + "px";
@@ -60,7 +60,7 @@ const screen = {
 
 // initializing more variables
 
-// assets is set as nothing for now; initialized in window.load() so simulation will start after all images are loaded in
+// assets = nothing for now; initialized in window.load() so simulation will start after all images are loaded in
 var assets;
 
 // sets up the default configurations
@@ -70,6 +70,7 @@ var config = createDefaultConfig();
 var brain = new NEAT(config);
 
 // boolean to check if the user pressed the pause button
+// NOTE: starts as true, as simulation does not start till user presses btn on Home Screen
 var pause = true;
 
 //function to resize the screen when necessary
@@ -77,7 +78,7 @@ function resize() {
   screen.resize();
 }
 
-// create default configuration of neural network
+// create default configuration of neural network for the restart-simulation button
 function createDefaultConfig() {
   return {
     model: [
@@ -131,7 +132,7 @@ function createHandler() {
       birds: [], //list of birds
       x: 0, //x position of all the birds | m
       xVel: 10, //x velocity of all the birds | m/s
-      birdHeight: 2, //assume the bird's hitbox is a square | m
+      birdHeight: 2.25, //assume the bird's hitbox is a square | m
       jumpVel: 22, //change in y-velocity upon flapping | m/s
 
       gravity: 60, //gravity acceleration | m/s^2
@@ -162,7 +163,7 @@ function createHandler() {
       },
 
       simulate: function() {
-        // increase x-postion by dX/dT
+        // Calculate new x value
         this.x += this.xVel * time.delta;
 
         // draws the background graphics
@@ -207,36 +208,44 @@ function createHandler() {
             // pass bird input data through the nodes of the neural network
             brain.feedForward();
 
-            // renders bird and applies bird rotation
+            // renders bird at a specific angle
             let pos = [this.camX + b.dist - this.x, screen.canvas.h - b.y];
             b.angle = Math.atan2(b.yVel, this.xVel);
             
             ctx.translate(pos[0], pos[1]);
+
+            // applies bird rotation
             ctx.rotate(-b.angle/4-.3);
 
             ctx.fillStyle = "rgb(237, 255, 0)";
-
+            
+            // draws the image
             ctx.drawImage(assets.birdSprites[(Math.floor(time.inGameNow/100))%3], -this.birdHeight/2 * 34/24, -this.birdHeight/2, this.birdHeight * 34/24, this.birdHeight);
 
             ctx.rotate(b.angle/4+.3);
             ctx.translate(-pos[0], -pos[1]);
             
-            // get the decision of the bird and flaps if the bird decides to
+            // get the decision of the specific bird and flaps if the bird decides to
             let choices = brain.getDesicions(i);
             if (choices[i] == 1) {
               b.flap();
             }
 
           } else { // if the bird is dead
-            // y-vel is 0 so the bird should not move
+
+            // y-vel is 0 so the bird should not move when dead
             b.yVel = 0;
 
             // decrease opacity till its invisble (0 opacity)
             b.opacity = Math.max(b.opacity - .05, 0);
+
+            // position of the bird to be rendered in terms of canvas coordinates
             let pos = [this.camX + b.dist - this.x, screen.canvas.h - b.y];
 
+            // set the opacity of any subsequent canvas drawings to b.opacity
             ctx.globalAlpha = b.opacity;
             
+            // rotate the bird and then draw it
             ctx.translate(pos[0], pos[1]);
             ctx.rotate(-b.angle/4-.3);
 
@@ -247,6 +256,7 @@ function createHandler() {
             ctx.rotate(b.angle/4+.3);
             ctx.translate(-pos[0], -pos[1]);
 
+            // set the opacity of any subsequent canvas drawing back to its default, which is 1
             ctx.globalAlpha = 1;
           }
 
@@ -258,7 +268,7 @@ function createHandler() {
 
         ctx.fillStyle = "rgb(28, 161, 21)";
 
-        // draws pipes between the bounds of the screen
+        // draws pipes between the bounds of the screen based on the rng values
         for (let x = start; x <= end; x += this.pipeDist) {
           // gets the position of each pipe
           let pipe = this.getPipe(x);
@@ -276,13 +286,14 @@ function createHandler() {
           );
         }
         
-        // renders the base image
+        // renders the ground image, which must be tesselated 
         disp = -(this.x)%20.2;
         for (let i = 0; i < 5; i++) {
           ctx.drawImage(assets.base, disp + i * 20.2, 33, 20.25, 6.75);
         }
         
         // computes the score of the living birds
+        // NOTE: since all birds are align to same x-pos, each alive bird score is the same
         let score = Math.max(Math.ceil(this.x / this.pipeDist), 1) - 1;
         let scorelength = score.toString().length;
 
@@ -292,9 +303,9 @@ function createHandler() {
           ctx.drawImage(assets.nums[score%10], disp + i, 2.5, 1.2, 36/24*1.3);
           score = Math.floor(score/10);
         }
-
-        ctx.font = "1.7px 'Figtree', sans-serif";
         
+        // sets up the font details to draw the generation text
+        ctx.font = "1.7px 'Figtree', sans-serif";
         ctx.lineWidth = .34;
         
         // writes the generation number to the screen
@@ -327,37 +338,63 @@ function createHandler() {
 }
 
 function mainloop() {
+  // recursive call to continue animation
   window.requestAnimationFrame(mainloop);
 
+  // if game is paused
   if (time.inGameNow == 0 && pause) return;
 
   // if the generation has all died, create the new generation of birds and apply user changes
   if (gameHandler.isExtinct()) {
+    // start the next generation since all current birds are dead
     brain.doGen();
+
+    // recreates the default handler to have fresh set of birds
     gameHandler = createHandler();
+    
+    // applies the previous set input-values so simulation settings remain the same
     UIconfig.enforce();
+
+    // starts the simulation again
     gameHandler.init();
   }
-
+  
+  // set the current time to performance.now(), which represents the number of milliseconds since the webpage was started
   time.now = performance.now();
-  time.delta = (time.now - time.then) / 1000;
-  time.then = time.now;
-  time.delta = 1 / 60 * gameHandler.speed/50; //for now, assume 60 fps
 
+  // the min function prevents the time step, time.delta from being a very large value
+  // at frame rates lower than 20fps, the simulation will start to lag
+  time.delta = Math.min((time.now - time.then) / 1000, .05); 
+
+  time.then = time.now;
+  
+  // scale the time by user-speed input
+  time.delta *= gameHandler.speed/50;
+
+  // if the game is paused, time.delta should be set to 0
   time.delta *= 1-pause;
 
+  // update the in-game timer
   time.inGameNow += time.delta * 1000;
 
+  // clear the canvas before rendering anything to it
   ctx.clearRect(0, 0, screen.canvas.w, screen.canvas.h);
+
+  // ensures that any pixelated images will not be blurry when rendered
   ctx.imageSmoothingEnabled = false;
 
   gameHandler.simulate();
 }
 
+// resizes the screen, when window size changes
 window.addEventListener('resize', resize);
-window.onload = new function() {
-  resize();
 
+// when the window finishes loading
+window.onload = new function() {
+  // double check that window is sized properly
+  resize();
+  
+  // initializes images here, so it will definitely load before simulation starts
   assets = {
     birdSprites : [createImage('yellowbird-downflap.png'), createImage('yellowbird-midflap.png'), createImage('yellowbird-upflap.png')],
     nums : [createImage('0.png'), createImage('1.png'), createImage('2.png'), createImage('3.png'), createImage('4.png'), createImage('5.png'), createImage('6.png'), createImage('7.png'), createImage('8.png'), createImage('9.png')],
@@ -366,12 +403,18 @@ window.onload = new function() {
     pipeUp : createImage('pipe-green.png'),
     pipeDown : createImage('pipe-green-down.png')
   };
+  
+  // creates the default handler
+  gameHandler = createHandler(); 
 
-  gameHandler = createHandler();
+  // creates the default UI configurations
   UIconfig = createDefaultUIConfig();
+  
+  // initialize both UIconfig and the game handler 
   UIconfig.init();
   gameHandler.init();
 
+  // start the simulation
   window.requestAnimationFrame(mainloop);
 }
 

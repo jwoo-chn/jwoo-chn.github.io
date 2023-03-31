@@ -5,7 +5,7 @@ class PRNG {
     this.seed = seed;
   }
 
-  //generate a random number with the Mulberry32 function and return it
+  //generate a random number with the Mulberry32 algorithm and return it
   num(x) {
     var t = (this.seed + x) + 0x6D2B79F5;
     t = Math.imul(t ^ t >>> 15, t | 1);
