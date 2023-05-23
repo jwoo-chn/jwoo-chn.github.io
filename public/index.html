@@ -20,7 +20,10 @@
     <div id="root"></div>
 
     <!-- window for the user configurations -->
-    <div id="configWindow" class="configWindow"></div> 
+    <div id="configWindowContainer" class="configWindowContainer">      
+      <div id="configWindow" class="configWindow"></div> 
+    </div>
+
 
     <!-- adds the darkened background -->
     <div class="mask" id="mask"></div>
@@ -69,9 +72,12 @@
     </div>
 
     <!-- button to pause the simulation -->
-    <button id="pauseBtn" class="topRight" onclick="pauseSim()">Pause Simulation</button>
+    <button id="pauseBtn" class="topLeft" onclick="pauseSim()">Pause Simulation</button>
     <div id="flappy-div">
       <canvas id="flappy-c"></canvas>
+      
+      <!-- access script to draw the chart -->
+      <script src="https://cdn.plot.ly/plotly-2.20.0.min.js" charset="utf-8"></script>
 
       <!-- allows the Node.JS require() commands to work on browser's end -->
       <script src="%PUBLIC_URL%/assets/flappy-components/scripts/bundle.js"></script>

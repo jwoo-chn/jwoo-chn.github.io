@@ -26,6 +26,9 @@ body {
   outline: 0 !important;
 }
 
+.centerChildren {
+  display: flex; justify-content: center;
+}
 
 .configSlider {
   -webkit-appearance: none;
@@ -144,12 +147,23 @@ body {
   overflow-y: scroll;
 }
 
-.configWindow {
-  position: fixed;
-  width: 37%;
-  height: 35%;
-  right: 3%;
+.configWindowContainer {
+  position: absolute;
+  width: 39%;
+  height: 94%;
+  right: 2%;
   bottom: 3%;
+  z-index: 2;
+  display: flex;
+  flex-flow: row;
+  align-items: center;
+  transition: transform 0.3s ease;
+}
+
+.configWindow {
+  right: 0%;
+  width: 100%;
+  height: 100%;
   background-color: var(--UIBgColor);
   border: 2px solid var(--fontColor);
   display: flex;
@@ -157,7 +171,7 @@ body {
   z-index: 2;
 }
 
-#pauseBtn, .configWindow {
+#pauseBtn, .configWindowContainer {
   visibility: hidden;
   opacity: 0%;
   transition: opacity 0.15s linear;
@@ -174,10 +188,10 @@ canvas {
 
 .mainMenu {
   position: fixed;
-  width: 50%;
-  height: 54%;
-  right: 25%;
-  bottom: 23%;
+  width: 66%;
+  height: 75%;
+  right: 17%;
+  bottom: 12.5%;
   background-color: var(--UIBgColor);
   border: 2px solid var(--fontColor);
 
@@ -257,7 +271,7 @@ canvas {
   pointer-events: none;
 }
 
-.topRight {
+.topLeft {
   font-size: 1.2rem;
   font-family: var(--font1);
   outline: 0;
@@ -268,11 +282,11 @@ canvas {
   transition: background-color .1s, color .1s;
   position: fixed;
   top: 3%;
-  right: 3%;
+  left: 3%;
   z-index: 2;
 }
 
-.topRight:hover {
+.topLeft:hover {
   background-color: var(--fontColor);
   color: var(--UIBgColor);
 }
@@ -295,10 +309,10 @@ canvas {
   outline: 1px solid slategrey;
 }
 
-.highlight {
-  color: #eed202;
-}
-
 li:not(:last-child) {
   margin-bottom: .3rem;
+}
+
+.highlight {
+  color: #eed202;
 }

@@ -4,6 +4,7 @@ const menu = document.getElementById('mainMenu');
 const editWindow = document.getElementById("configWindow");
 const pauseBtn = document.getElementById("pauseBtn");
 const configWindow = document.getElementById("configWindow");
+const configWindowContainer = document.getElementById("configWindowContainer");
 
 var UIconfig; // initialized when document loads, so starts empty
 var inputObjs = []; //a maintained list of all the input objects for easy access
@@ -183,6 +184,97 @@ class Slider extends Input {
   }
 }
 
+class Graph {
+  constructor(title) {
+    this.title = title;
+    this.generations = [];
+    this.scores = [];
+    this.element = this.makeElement(); // the actual button element
+  }
+
+  makeElement() {
+    let ret = document.createElement('div');
+
+    ret.className = 'configInputWrapper centerChildren';
+
+    let c = document.createElement('div');
+    
+    c.id = "chartContainer";
+
+    // leftSide and rightSide represent the left and right sides of the input element.
+    // the left side houses the actual button while the right side houses the button description.
+    let leftSide = document.createElement('div');
+    let rightSide = document.createElement('div');
+
+    // create the description element
+    this.descElement = document.createElement('div');
+    this.descElement.innerHTML = this.desc;
+    this.descElement.className = 'configPropertyDesc';
+
+    // styling the left and right side divs
+    leftSide.style.width = '30%';
+    rightSide.style.width = '60%';
+    rightSide.style.padding = '.5rem .6rem';
+
+    // build the div hierarchy
+    c.appendChild(leftSide);
+    c.appendChild(rightSide);
+
+    ret.appendChild(c);
+    return ret;
+  }
+
+  drawGraph(generation, score) {
+    this.generations.push(generation);
+    this.scores.push(score);
+    var data = [
+      {
+        x: this.generations,
+        y: this.scores,
+        type: 'scatter',
+        mode: 'lines'
+      }
+    ];
+    var layout = {
+      autosize: false,
+      width: 400,
+      height: 400,
+      margin: {
+        l: 50,
+        r: 50,
+        b: 100,
+        t: 100,
+        pad: 4
+      },
+      title: {
+        text: this.title,
+        font: {
+          size: 24
+        }
+      },
+      yaxis: {
+        title: 'Scores',
+        tickmode: 'array',
+        automargin: true,
+      },
+      xaxis: {
+        title: 'Generations',
+        tickmode: 'array',
+        automargin: true,
+      },
+      font: {
+        color: 'rgb(235,235,235)'
+      },
+      paper_bgcolor: 'rgb(30,30,30)',
+      plot_bgcolor: '#c7c7c7'
+    };
+    
+    var config = {responsive: true, displayModeBar: false, staticPlot: true}
+
+    Plotly.newPlot('chartContainer', data, layout, config);
+  }
+}
+
 class Button extends Input {
   constructor(callback, title, desc) {
     super(title, desc);
@@ -333,7 +425,7 @@ class Config {
 
   // populates the config window with all the tabs and their respective contents
   init() {
-    // iterate through each tab and 
+    // iterate through each tab
     for (let i = 0; i < this.tabs.length; i++) {
       let t = this.tabs[i];
       this.tabBar.appendChild(t.tabElement);
@@ -362,15 +454,7 @@ class Config {
 
 // restart the simulation
 function restartSim() {
-  config = createDefaultConfig();
-  brain = new NEAT(config);
-
-  gameHandler = createHandler();
-  gameHandler.init();
-  UIconfig.enforce();
-
-  window.cancelAnimationFrame();
-  window.requestAnimationFrame(mainloop);
+  location.reload();
 }
 
 // enter into the simulation - hides the main menu and displays the config window and pause button
@@ -379,8 +463,8 @@ function enterSim() {
   mask.style.opacity = 0;
   menu.style.visibility = 'hidden';
 
-  configWindow.style.visibility = "visible";
-  configWindow.style.opacity = 1;
+  configWindowContainer.style.visibility = "visible";
+  configWindowContainer.style.opacity = 1;
 
   pauseBtn.style.visibility = "visible";
   pauseBtn.style.opacity = 1;
@@ -392,8 +476,8 @@ function pauseSim() {
   mask.style.opacity = 1;
   menu.style.visibility = 'visible';
 
-  configWindow.style.visibility = "hidden";
-  configWindow.style.opacity = 0;
+  configWindowContainer.style.visibility = "hidden";
+  configWindowContainer.style.opacity = 0;
 
   pauseBtn.style.visibility = "hidden";
   pauseBtn.style.opacity = 0;

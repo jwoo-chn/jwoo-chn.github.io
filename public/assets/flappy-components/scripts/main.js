@@ -7,6 +7,7 @@ const IMAGE_DIRECTORY = '/assets/flappy-components/statics/';
 
 // imports the NEAT library
 const { NEAT, activation, crossover, mutate } = require('neat_net-js');
+const graph = new Graph('Score vs Generation Graph');
 
 // sets the in-game time
 const time = {
@@ -111,6 +112,7 @@ function createDefaultUIConfig() {
       new Slider('camX', 'Camera X', 'The horizontal position of the birds on the screen.', [2,50], 10),
       new Slider('speed', 'Speed', 'The speed at which the simulation runs.', [5, 300], 50),
     ]),
+    new ConfigTab("Graph", [graph])
   ]);
 }
 
@@ -146,6 +148,8 @@ function createHandler() {
       speed: 50, //game movement speed
       numBirds: 30, //number of birds
       mutationRate: 0.1, //probability of a gene being randomly changed
+
+      constScore: 0,
 
       init: function() {
         // initilizes the array of birds
@@ -294,6 +298,7 @@ function createHandler() {
         // computes the score of the living birds
         // NOTE: since all birds are align to same x-pos, each alive bird score is the same
         let score = Math.max(Math.ceil(this.x / this.pipeDist), 1) - 1;
+        this.constScore = score;
         let scorelength = score.toString().length;
 
         // writes the score to the screen
@@ -345,6 +350,9 @@ function mainloop() {
 
   // if the generation has all died, create the new generation of birds and apply user changes
   if (gameHandler.isExtinct()) {
+
+    graph.drawGraph(brain.generation+1, gameHandler.constScore);
+
     // start the next generation since all current birds are dead
     brain.doGen();
 
@@ -412,6 +420,8 @@ window.onload = new function() {
   // initialize both UIconfig and the game handler 
   UIconfig.init();
   gameHandler.init();
+
+  graph.drawGraph();
 
   // start the simulation
   window.requestAnimationFrame(mainloop);
